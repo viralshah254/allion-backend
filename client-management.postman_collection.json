@@ -1,0 +1,404 @@
+{
+  "info": {
+    "_postman_id": "b5a7e8d3-4b1f-43e1-a88a-5f6c4fcbd234",
+    "name": "Client Management",
+    "description": "Collection for managing clients, groups, and related operations in the insurance system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Clients",
+      "description": "Operations related to client management",
+      "item": [
+        {
+          "name": "Get All Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            },
+            "description": "Retrieve a list of all clients"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": \"individual\",\n  \"firstName\": \"John\",\n  \"middleName\": \"Doe\",\n  \"lastName\": \"Smith\",\n  \"dateOfBirth\": \"1985-05-15\",\n  \"occupation\": \"Software Engineer\",\n  \"postalAddress\": \"P.O. Box 12345\",\n  \"physicalAddress\": \"123 Main St\",\n  \"coordinates\": \"12.345, 67.890\",\n  \"phoneNumber\": \"+12345678901\",\n  \"email\": \"john@example.com\",\n  \"contactPersons\": [\n    {\n      \"name\": \"Jane Smith\",\n      \"phoneNumber\": \"+12345678902\",\n      \"email\": \"jane@example.com\",\n      \"isMainContact\": true\n    }\n  ],\n  \"referredBy\": \"Website\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            },
+            "description": "Create a new individual client"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Corporate Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": \"corporate\",\n  \"companyName\": \"Acme Corporation\",\n  \"postalAddress\": \"P.O. Box 54321\",\n  \"physicalAddress\": \"456 Business Park\",\n  \"coordinates\": \"12.345, 67.890\",\n  \"phoneNumber\": \"+12345678903\",\n  \"email\": \"info@acme.com\",\n  \"contactPersons\": [\n    {\n      \"name\": \"Robert Johnson\",\n      \"phoneNumber\": \"+12345678904\",\n      \"email\": \"robert@acme.com\",\n      \"department\": \"sales\",\n      \"isMainContact\": true\n    }\n  ],\n  \"referredBy\": \"Partner Agency\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            },
+            "description": "Create a new corporate client"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Client by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{clientId}}",
+                  "description": "Client ID"
+                }
+              ]
+            },
+            "description": "Retrieve a single client by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"middleName\": \"Michael\",\n  \"lastName\": \"Smith\",\n  \"email\": \"john.updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{clientId}}",
+                  "description": "Client ID"
+                }
+              ]
+            },
+            "description": "Update an existing client"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Client",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{clientId}}",
+                  "description": "Client ID"
+                }
+              ]
+            },
+            "description": "Delete a client"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Clients by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/type/:type",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", "type", ":type"],
+              "variable": [
+                {
+                  "key": "type",
+                  "value": "individual",
+                  "description": "Client type (individual, corporate, group)"
+                }
+              ]
+            },
+            "description": "Retrieve clients by type (individual, corporate, group)"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload KYC Documents",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documents",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/:id/kyc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ":id", "kyc"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{clientId}}",
+                  "description": "Client ID"
+                }
+              ]
+            },
+            "description": "Upload KYC documents for a client"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "description": "Operations related to client group management",
+      "item": [
+        {
+          "name": "Get All Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups"]
+            },
+            "description": "Retrieve a list of all client groups"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupName\": \"Corporate Clients Group\",\n  \"description\": \"A group of our corporate clients\",\n  \"members\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups"]
+            },
+            "description": "Create a new client group"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{groupId}}",
+                  "description": "Group ID"
+                }
+              ]
+            },
+            "description": "Retrieve a single group by ID with populated member information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupName\": \"Updated Group Name\",\n  \"description\": \"Updated group description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{groupId}}",
+                  "description": "Group ID"
+                }
+              ]
+            },
+            "description": "Update an existing group"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{groupId}}",
+                  "description": "Group ID"
+                }
+              ]
+            },
+            "description": "Delete a group"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Member to Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"clientType\": \"individual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/:id/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", ":id", "members"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{groupId}}",
+                  "description": "Group ID"
+                }
+              ]
+            },
+            "description": "Add a client as a member to a group"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Member from Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/:id/members/:clientId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", ":id", "members", ":clientId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{groupId}}",
+                  "description": "Group ID"
+                },
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}",
+                  "description": "Client ID to remove from group"
+                }
+              ]
+            },
+            "description": "Remove a client from a group"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "clientId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "groupId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
