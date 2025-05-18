@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User, { UserRole } from "../models/User";
 import logger from "./logger";
 import connectDB from "../config/db";
+
+
 
 // Load env vars
 dotenv.config();
