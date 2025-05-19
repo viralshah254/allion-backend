@@ -4,15 +4,15 @@ import crypto from "crypto";
 import logger from "../utils/logger";
 
 // @desc    Register user
-// @route   POST /api/v1/auth/register
+// @route   POST /api/auth/register
 // @access  Private/Admin
-export const registerUser = async (
+export const registerAdminUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { name, phoneNumber, password, role, email } = req.body;
+    const { name, phoneNumber, password,  email, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ phoneNumber });
@@ -34,12 +34,12 @@ export const registerUser = async (
       return;
     }
 
-    // Create user
+    // Create admin user
     const user = await User.create({
       name,
       phoneNumber,
       password,
-      role: role || UserRole.AGENT,
+      role: UserRole.ADMIN,
       email,
       createdBy: req.user?.id,
     });
@@ -61,7 +61,7 @@ export const registerUser = async (
 };
 
 // @desc    Login user
-// @route   POST /api/v1/auth/login
+// @route   POST /api/auth/login
 // @access  Public
 export const login = async (
   req: Request,
@@ -110,7 +110,7 @@ export const login = async (
 };
 
 // @desc    Get current logged in user
-// @route   GET /api/v1/auth/me
+// @route   GET /api/auth/me
 // @access  Private
 export const getMe = async (
   req: Request,
@@ -132,7 +132,7 @@ export const getMe = async (
 };
 
 // @desc    Forgot password
-// @route   POST /api/v1/auth/forgotpassword
+// @route   POST /api/auth/forgotpassword
 // @access  Public
 export const forgotPassword = async (
   req: Request,
@@ -186,7 +186,7 @@ export const forgotPassword = async (
 };
 
 // @desc    Reset password
-// @route   PUT /api/v1/auth/resetpassword/:resettoken
+// @route   PUT /api/auth/resetpassword/:resettoken
 // @access  Public
 export const resetPassword = async (
   req: Request,
@@ -275,6 +275,68 @@ export const updateProfile = async (
     });
   } catch (err: any) {
     logger.error(`Error updating profile: ${err.message}`);
+    next(err);
+  }
+};
+
+// @desc    Register an admin user
+// @route   POST /api/auth/registeradmin
+// @access  Public (with admin key)
+export const registerAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, phoneNumber, password, email, adminKey } = req.body;
+
+    // Validate admin key - In a real application, this would be a secure environment variable
+    // This is a simple implementation for demonstration purposes
+    const validAdminKey = process.env.ADMIN_REGISTRATION_KEY;
+    console.log(validAdminKey);
+
+    if (adminKey !== validAdminKey) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid admin registration key",
+      });
+      return;
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ phoneNumber });
+
+    if (existingUser) {
+      res.status(400).json({
+        success: false,
+        message: "User with that phone number already exists",
+      });
+      return;
+    }
+
+    // Create admin user
+    const user = await User.create({
+      name,
+      phoneNumber,
+      password,
+      role: UserRole.ADMIN,
+      email,
+    });
+
+    logger.info(`New admin user created: ${user.name}`);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+        email: user.email,
+      },
+    });
+  } catch (err: any) {
+    logger.error(`Error registering admin: ${err.message}`);
     next(err);
   }
 };

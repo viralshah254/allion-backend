@@ -2,22 +2,38 @@ import mongoose from "mongoose";
 
 // Client Type Enum
 export enum ClientType {
-  INDIVIDUAL = "individual",
-  CORPORATE = "corporate",
-  GROUP = "group",
+  INDIVIDUAL = "Individual",
+  CORPORATE = "Corporate",
+  GROUP = "Group",
 }
 
 // Department Enum
 export enum Department {
-  SALES = "sales",
-  FINANCE = "finance",
-  OPERATIONS = "operations",
-  MARKETING = "marketing",
-  HUMAN_RESOURCES = "human_resources",
-  CUSTOMER_SERVICE = "customer_service",
-  LEGAL = "legal",
-  IT = "it",
-  OTHER = "other",
+  SALES = "Sales",
+  FINANCE = "Finance",
+  OPERATIONS = "Operations",
+  MARKETING = "Marketing",
+  HUMAN_RESOURCES = "Human Resources",
+  CUSTOMER_SERVICE = "Customer Service",
+  LEGAL = "Legal",
+  IT = "IT",
+  OTHER = "Other",
+}
+
+// KYC Status Enum
+export enum KycStatus {
+  COMPLETE = "Complete",
+  INCOMPLETE = "Incomplete",
+  PENDING = "Pending",
+  REJECTED = "Rejected",
+}
+
+// Account Status Enum
+export enum AccountStatus {
+  ACTIVE = "Active",
+  INACTIVE = "Inactive",
+  PENDING = "Pending",
+  SUSPENDED = "Suspended",
 }
 
 // Contact Person Interface
@@ -52,9 +68,20 @@ export interface IClient extends mongoose.Document {
   contactPersons?: IContactPerson[];
   referredBy?: string;
   kycDocuments?: string[];
+  kycStatus?: KycStatus;
+  accountStatus?: AccountStatus;
   isGroup?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Virtual field for group information
+  groups?: Array<{ groupId: string; groupName: string; groupCode: string }>;
+  // Virtual field for policy information
+  policies?: Array<{
+    policyId: string;
+    policyNumber: string;
+    policyType: string;
+    status: string;
+  }>;
 }
 
 // Contact Person Schema
@@ -90,7 +117,7 @@ const ClientSchema = new mongoose.Schema<IClient>(
     clientCode: {
       type: String,
       unique: true,
-      required: true,
+      required: false,
     },
     clientType: {
       type: String,
@@ -140,6 +167,10 @@ const ClientSchema = new mongoose.Schema<IClient>(
     phoneNumber: {
       type: String,
       match: [/^\+?[0-9]{10,15}$/, "Please add a valid phone number"],
+      required: false,
+      unique: [true, "Phone number must be unique"],
+      index: { unique: true, sparse: true },
+      default: null,
     },
     email: {
       type: String,
@@ -155,6 +186,16 @@ const ClientSchema = new mongoose.Schema<IClient>(
         type: String,
       },
     ],
+    kycStatus: {
+      type: String,
+      enum: Object.values(KycStatus),
+      default: KycStatus.INCOMPLETE,
+    },
+    accountStatus: {
+      type: String,
+      enum: Object.values(AccountStatus),
+      default: AccountStatus.PENDING,
+    },
     isGroup: {
       type: Boolean,
       default: false,

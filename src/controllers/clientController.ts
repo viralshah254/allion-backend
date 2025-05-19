@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Client, { IClient, ClientType, Department } from "../models/Client";
 import logger from "../utils/logger";
+import Group from "../models/Group";
+import Policy from "../models/Policy";
+import mongoose from "mongoose";
 
 // Extend the Express Request interface to include files for multer
 interface MulterRequest extends Request {
@@ -8,7 +11,7 @@ interface MulterRequest extends Request {
 }
 
 // @desc    Create new client
-// @route   POST /api/v1/clients
+// @route   POST /api/clients
 // @access  Private
 export const createClient = async (
   req: Request,
@@ -37,6 +40,37 @@ export const createClient = async (
       kycDocuments,
       isGroup,
     } = req.body;
+
+    // Check if client type is valid
+    if (!Object.values(ClientType).includes(clientType)) {
+      const error: any = new Error("Invalid client type");
+      error.status = 400;
+      return next(error);
+    }
+    //check if phone number is provided and is valid
+    if (
+      (phoneNumber && !phoneNumber.match(/^\+?[0-9]{10,15}$/)) ||
+      !phoneNumber
+    ) {
+      const error: any = new Error(
+        "Phone number is required and must be valid"
+      );
+      error.status = 400;
+      return next(error);
+    }
+
+    // Check if phone number is already in use
+    const existingClient = await Client.findOne({ phoneNumber });
+    if (existingClient) {
+      const error: any = new Error(
+        "Phone number already in use by another client"
+      );
+      logger.error(
+        `Phone number already in use by another client: ${phoneNumber}`
+      );
+      error.status = 400;
+      return next(error);
+    }
 
     // Validate required fields based on client type
     if (clientType === ClientType.INDIVIDUAL) {
@@ -91,8 +125,8 @@ export const createClient = async (
   }
 };
 
-// @desc    Get all clients
-// @route   GET /api/v1/clients
+// @desc    Get all clients with filtering, search, and pagination
+// @route   GET /api/clients
 // @access  Private
 export const getClients = async (
   req: Request,
@@ -100,12 +134,251 @@ export const getClients = async (
   next: NextFunction
 ) => {
   try {
-    const clients = await Client.find();
+    // Copy query object
+    const queryObj: Record<string, any> = { ...req.query };
+
+    // Fields to exclude from filtering
+    const excludedFields = [
+      "page",
+      "sort",
+      "limit",
+      "fields",
+      "search",
+      "clientType",
+      "createdFrom",
+      "createdTo",
+      "updatedFrom",
+      "updatedTo",
+      "dobFrom",
+      "dobTo",
+      "policyType",
+    ];
+    excludedFields.forEach((field) => delete queryObj[field]);
+
+    // Add KycStatus filter if present (keep this in queryObj for direct MongoDB filtering)
+    if (req.query.kycStatus) {
+      queryObj.kycStatus = req.query.kycStatus;
+    }
+
+    // Handle policy type filtering - find client IDs with the specified policy type
+    if (req.query.policyType) {
+      const policyType = req.query.policyType as string;
+      // Find all policies of the specified type and get their client IDs
+      const policiesWithType = await Policy.find({ policyType }).distinct(
+        "client"
+      );
+
+      // Only include clients that have the specified policy type
+      if (policiesWithType.length > 0) {
+        queryObj._id = { $in: policiesWithType };
+      } else {
+        // If no policies match the type, use a valid ObjectId that won't match any document
+        // Using a valid but non-existent ObjectId to avoid cast errors
+        queryObj._id = { $in: ["000000000000000000000000"] };
+      }
+    }
+
+    // Process date filters
+    // 1. Creation date filtering
+    if (req.query.createdFrom || req.query.createdTo) {
+      queryObj.createdAt = {};
+
+      if (req.query.createdFrom) {
+        queryObj.createdAt.$gte = new Date(req.query.createdFrom as string);
+      }
+
+      if (req.query.createdTo) {
+        queryObj.createdAt.$lte = new Date(req.query.createdTo as string);
+      }
+    }
+
+    // 2. Updated date filtering
+    if (req.query.updatedFrom || req.query.updatedTo) {
+      queryObj.updatedAt = {};
+
+      if (req.query.updatedFrom) {
+        queryObj.updatedAt.$gte = new Date(req.query.updatedFrom as string);
+      }
+
+      if (req.query.updatedTo) {
+        queryObj.updatedAt.$lte = new Date(req.query.updatedTo as string);
+      }
+    }
+
+    //4.clientType filtering
+    if (req.query.clientType) {
+      queryObj.clientType = req.query.clientType as ClientType;
+      if (req.query.clientType === ClientType.INDIVIDUAL) {
+        // Only add dateOfBirth filter if we have actual date values
+        if (req.query.dobFrom || req.query.dobTo) {
+          queryObj.dateOfBirth = {};
+          if (req.query.dobFrom) {
+            queryObj.dateOfBirth.$gte = new Date(req.query.dobFrom as string);
+          }
+          if (req.query.dobTo) {
+            queryObj.dateOfBirth.$lte = new Date(req.query.dobTo as string);
+          }
+        }
+      }
+    }
+
+    // Build search query if provided
+    if (req.query.search) {
+      const searchTerm = req.query.search as string;
+      queryObj["$or"] = [
+        { firstName: { $regex: searchTerm, $options: "i" } },
+        { lastName: { $regex: searchTerm, $options: "i" } },
+        { companyName: { $regex: searchTerm, $options: "i" } },
+        { phoneNumber: { $regex: searchTerm, $options: "i" } },
+        { email: { $regex: searchTerm, $options: "i" } },
+        { clientCode: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+
+    // Apply the filters directly without JSON conversion
+    let query = Client.find(queryObj) as any;
+
+    // Sorting
+    if (req.query.sort) {
+      const sortBy = (req.query.sort as string).split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      // Default sort by createdAt descending
+      query = query.sort("-createdAt");
+    }
+
+    // Field limiting
+    if (req.query.fields) {
+      const fields = (req.query.fields as string).split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      // Exclude '__v' field by default
+      query = query.select("-__v");
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Client.countDocuments(queryObj);
+
+    query = query.skip(startIndex).limit(limit);
+
+    // Execute query
+    const clients = await query.exec();
+
+    // Fetch group and policy information for each client
+    const clientsWithGroupsAndPolicies = await Promise.all(
+      (clients as IClient[]).map(async (client: IClient) => {
+        // Find groups where this client is a member
+        const groups = await Group.find({
+          "members.clientId": client._id,
+        }).select("_id groupName groupCode");
+
+        // Find policies where this client is insured
+        const policies = await Policy.find({
+          client: client._id,
+        }).select("_id policyNumber policyType status");
+
+        // Convert client to a plain object so we can add properties
+        const clientObj = client.toObject();
+
+        // Add groups information to client
+        clientObj.groups = groups.map((group: any) => ({
+          groupId: group._id,
+          groupName: group.groupName,
+          groupCode: group.groupCode,
+        }));
+
+        // Add policies information to client
+        clientObj.policies = policies.map((policy: any) => ({
+          policyId: policy._id,
+          policyNumber: policy.policyNumber,
+          policyType: policy.policyType,
+          status: policy.status,
+        }));
+
+        return clientObj;
+      })
+    );
+
+    // For sorting by name or group after fetching data (post-processing sort)
+    if (req.query.sort) {
+      const sortParams = (req.query.sort as string).split(",");
+
+      // Handle special sort cases that need post-processing
+      if (sortParams.includes("name") || sortParams.includes("-name")) {
+        const direction = sortParams.includes("-name") ? -1 : 1;
+        clientsWithGroupsAndPolicies.sort((a, b) => {
+          // For individual clients, sort by firstName + lastName
+          if (
+            a.clientType === ClientType.INDIVIDUAL &&
+            b.clientType === ClientType.INDIVIDUAL
+          ) {
+            const aName = `${a.firstName || ""} ${a.lastName || ""}`.trim();
+            const bName = `${b.firstName || ""} ${b.lastName || ""}`.trim();
+            return direction * aName.localeCompare(bName);
+          }
+          // For corporate clients, sort by companyName
+          else if (
+            a.clientType === ClientType.CORPORATE &&
+            b.clientType === ClientType.CORPORATE
+          ) {
+            return (
+              direction *
+              (a.companyName || "").localeCompare(b.companyName || "")
+            );
+          }
+          // Mixed types - individuals come first
+          else {
+            return a.clientType === ClientType.INDIVIDUAL
+              ? -1 * direction
+              : 1 * direction;
+          }
+        });
+      }
+
+      // Sort by group (first group name)
+      if (sortParams.includes("group") || sortParams.includes("-group")) {
+        const direction = sortParams.includes("-group") ? -1 : 1;
+        clientsWithGroupsAndPolicies.sort((a, b) => {
+          const aGroup =
+            a.groups && a.groups.length > 0 ? a.groups[0].groupName : "";
+          const bGroup =
+            b.groups && b.groups.length > 0 ? b.groups[0].groupName : "";
+          return direction * aGroup.localeCompare(bGroup);
+        });
+      }
+    }
+
+    // Pagination result
+    const pagination: any = {};
+
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit,
+      };
+    }
 
     res.status(200).json({
       success: true,
       count: clients.length,
-      data: clients,
+      pagination: {
+        total,
+        page,
+        limit,
+        ...pagination,
+      },
+      data: clientsWithGroupsAndPolicies,
     });
   } catch (error: any) {
     logger.error(`Error fetching clients: ${error.message}`);
@@ -114,7 +387,7 @@ export const getClients = async (
 };
 
 // @desc    Get single client
-// @route   GET /api/v1/clients/:id
+// @route   GET /api/clients/:id
 // @access  Private
 export const getClientById = async (
   req: Request,
@@ -131,9 +404,37 @@ export const getClientById = async (
       return next(error);
     }
 
+    // Find groups where this client is a member
+    const groups = await Group.find({
+      "members.clientId": client._id,
+    }).select("_id groupName groupCode");
+
+    // Find policies where this client is insured
+    const policies = await Policy.find({
+      client: client._id,
+    }).select("_id policyNumber policyType status");
+
+    // Convert client to a plain object so we can add properties
+    const clientObj = client.toObject();
+
+    // Add groups information to client
+    clientObj.groups = groups.map((group: any) => ({
+      groupId: group._id,
+      groupName: group.groupName,
+      groupCode: group.groupCode,
+    }));
+
+    // Add policies information to client
+    clientObj.policies = policies.map((policy: any) => ({
+      policyId: policy._id,
+      policyNumber: policy.policyNumber,
+      policyType: policy.policyType,
+      status: policy.status,
+    }));
+
     res.status(200).json({
       success: true,
-      data: client,
+      data: clientObj,
     });
   } catch (error: any) {
     logger.error(`Error fetching client ${req.params.id}: ${error.message}`);
@@ -142,7 +443,7 @@ export const getClientById = async (
 };
 
 // @desc    Update client
-// @route   PUT /api/v1/clients/:id
+// @route   PUT /api/clients/:id
 // @access  Private
 export const updateClient = async (
   req: Request,
@@ -204,7 +505,7 @@ export const updateClient = async (
 };
 
 // @desc    Delete client
-// @route   DELETE /api/v1/clients/:id
+// @route   DELETE /api/clients/:id
 // @access  Private
 export const deleteClient = async (
   req: Request,
@@ -232,8 +533,8 @@ export const deleteClient = async (
   }
 };
 
-// @desc    Get clients by type
-// @route   GET /api/v1/clients/type/:type
+// @desc    Get clients by type with filtering, search, and pagination
+// @route   GET /api/clients/type/:type
 // @access  Private
 export const getClientsByType = async (
   req: Request,
@@ -250,12 +551,254 @@ export const getClientsByType = async (
       return next(error);
     }
 
-    const clients = await Client.find({ clientType: type });
+    // Copy query object and add the clientType filter
+    const queryObj: Record<string, any> = { ...req.query, clientType: type };
+
+    // Fields to exclude from filtering
+    const excludedFields = [
+      "page",
+      "sort",
+      "limit",
+      "fields",
+      "search",
+      "createdFrom",
+      "createdTo",
+      "updatedFrom",
+      "updatedTo",
+      "dobFrom",
+      "dobTo",
+      "policyType",
+    ];
+    excludedFields.forEach((field) => delete queryObj[field]);
+
+    // Add KycStatus filter if present (keep this in queryObj for direct MongoDB filtering)
+    if (req.query.kycStatus) {
+      queryObj.kycStatus = req.query.kycStatus;
+    }
+
+    // Handle policy type filtering - find client IDs with the specified policy type
+    if (req.query.policyType) {
+      const policyType = req.query.policyType as string;
+      // Find all policies of the specified type and get their client IDs
+      const policiesWithType = await Policy.find({
+        policyType,
+        client: { $exists: true, $ne: null },
+      }).distinct("client");
+
+      // Only include clients that have the specified policy type
+      if (policiesWithType.length > 0) {
+        queryObj._id = { $in: policiesWithType };
+      } else {
+        // If no policies match the type, use a valid ObjectId that won't match any document
+        // Using a valid but non-existent ObjectId to avoid cast errors
+        queryObj._id = { $in: ["000000000000000000000000"] };
+      }
+    }
+
+    // Process date filters
+    // 1. Creation date filtering
+    if (req.query.createdFrom || req.query.createdTo) {
+      queryObj.createdAt = {};
+
+      if (req.query.createdFrom) {
+        queryObj.createdAt.$gte = new Date(req.query.createdFrom as string);
+      }
+
+      if (req.query.createdTo) {
+        queryObj.createdAt.$lte = new Date(req.query.createdTo as string);
+      }
+    }
+
+    // 2. Updated date filtering
+    if (req.query.updatedFrom || req.query.updatedTo) {
+      queryObj.updatedAt = {};
+
+      if (req.query.updatedFrom) {
+        queryObj.updatedAt.$gte = new Date(req.query.updatedFrom as string);
+      }
+
+      if (req.query.updatedTo) {
+        queryObj.updatedAt.$lte = new Date(req.query.updatedTo as string);
+      }
+    }
+
+    // 3. Date of birth filtering (for individual clients)
+    if (req.query.dobFrom || req.query.dobTo) {
+      queryObj.dateOfBirth = {};
+
+      if (req.query.dobFrom) {
+        queryObj.dateOfBirth.$gte = new Date(req.query.dobFrom as string);
+      }
+
+      if (req.query.dobTo) {
+        queryObj.dateOfBirth.$lte = new Date(req.query.dobTo as string);
+      }
+    }
+
+    // Build search query if provided
+    if (req.query.search) {
+      const searchTerm = req.query.search as string;
+      queryObj["$and"] = [
+        { clientType: type },
+        {
+          $or: [
+            { firstName: { $regex: searchTerm, $options: "i" } },
+            { lastName: { $regex: searchTerm, $options: "i" } },
+            { companyName: { $regex: searchTerm, $options: "i" } },
+            { phoneNumber: { $regex: searchTerm, $options: "i" } },
+            { email: { $regex: searchTerm, $options: "i" } },
+            { clientCode: { $regex: searchTerm, $options: "i" } },
+          ],
+        },
+      ];
+      // Remove the clientType from the top level since it's in the $and
+      delete queryObj.clientType;
+    }
+
+    // Apply the filters directly without JSON conversion
+    let query = Client.find(queryObj) as any;
+
+    // Sorting
+    if (req.query.sort) {
+      const sortBy = (req.query.sort as string).split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      // Default sort by createdAt descending
+      query = query.sort("-createdAt");
+    }
+
+    // Field limiting
+    if (req.query.fields) {
+      const fields = (req.query.fields as string).split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      // Exclude '__v' field by default
+      query = query.select("-__v");
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Client.countDocuments(queryObj);
+
+    query = query.skip(startIndex).limit(limit);
+
+    // Execute query
+    const clients = await query.exec();
+
+    // Fetch group and policy information for each client
+    const clientsWithGroupsAndPolicies = await Promise.all(
+      (clients as IClient[]).map(async (client: IClient) => {
+        // Find groups where this client is a member
+        const groups = await Group.find({
+          "members.clientId": client._id,
+        }).select("_id groupName groupCode");
+
+        // Find policies where this client is insured
+        const policies = await Policy.find({
+          client: client._id,
+        }).select("_id policyNumber policyType status");
+
+        // Convert client to a plain object so we can add properties
+        const clientObj = client.toObject();
+
+        // Add groups information to client
+        clientObj.groups = groups.map((group: any) => ({
+          groupId: group._id,
+          groupName: group.groupName,
+          groupCode: group.groupCode,
+        }));
+
+        // Add policies information to client
+        clientObj.policies = policies.map((policy: any) => ({
+          policyId: policy._id,
+          policyNumber: policy.policyNumber,
+          policyType: policy.policyType,
+          status: policy.status,
+        }));
+
+        return clientObj;
+      })
+    );
+
+    // For sorting by name or group after fetching data (post-processing sort)
+    if (req.query.sort) {
+      const sortParams = (req.query.sort as string).split(",");
+
+      // Handle special sort cases that need post-processing
+      if (sortParams.includes("name") || sortParams.includes("-name")) {
+        const direction = sortParams.includes("-name") ? -1 : 1;
+        clientsWithGroupsAndPolicies.sort((a, b) => {
+          // For individual clients, sort by firstName + lastName
+          if (
+            a.clientType === ClientType.INDIVIDUAL &&
+            b.clientType === ClientType.INDIVIDUAL
+          ) {
+            const aName = `${a.firstName || ""} ${a.lastName || ""}`.trim();
+            const bName = `${b.firstName || ""} ${b.lastName || ""}`.trim();
+            return direction * aName.localeCompare(bName);
+          }
+          // For corporate clients, sort by companyName
+          else if (
+            a.clientType === ClientType.CORPORATE &&
+            b.clientType === ClientType.CORPORATE
+          ) {
+            return (
+              direction *
+              (a.companyName || "").localeCompare(b.companyName || "")
+            );
+          }
+          // Mixed types - individuals come first
+          else {
+            return a.clientType === ClientType.INDIVIDUAL
+              ? -1 * direction
+              : 1 * direction;
+          }
+        });
+      }
+
+      // Sort by group (first group name)
+      if (sortParams.includes("group") || sortParams.includes("-group")) {
+        const direction = sortParams.includes("-group") ? -1 : 1;
+        clientsWithGroupsAndPolicies.sort((a, b) => {
+          const aGroup =
+            a.groups && a.groups.length > 0 ? a.groups[0].groupName : "";
+          const bGroup =
+            b.groups && b.groups.length > 0 ? b.groups[0].groupName : "";
+          return direction * aGroup.localeCompare(bGroup);
+        });
+      }
+    }
+
+    // Pagination result
+    const pagination: any = {};
+
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit,
+      };
+    }
 
     res.status(200).json({
       success: true,
       count: clients.length,
-      data: clients,
+      pagination: {
+        total,
+        page,
+        limit,
+        ...pagination,
+      },
+      data: clientsWithGroupsAndPolicies,
     });
   } catch (error: any) {
     logger.error(`Error fetching clients by type: ${error.message}`);
@@ -264,7 +807,7 @@ export const getClientsByType = async (
 };
 
 // @desc    Upload KYC documents for a client
-// @route   POST /api/v1/clients/:id/kyc
+// @route   POST /api/clients/:id/kyc
 // @access  Private
 export const uploadKycDocuments = async (
   req: MulterRequest,

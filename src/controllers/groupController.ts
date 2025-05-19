@@ -4,7 +4,7 @@ import Client from "../models/Client";
 import logger from "../utils/logger";
 
 // @desc    Create new group
-// @route   POST /api/v1/groups
+// @route   POST /api/groups
 // @access  Private
 export const createGroup = async (
   req: Request,
@@ -39,8 +39,8 @@ export const createGroup = async (
   }
 };
 
-// @desc    Get all groups
-// @route   GET /api/v1/groups
+// @desc    Get all groups with filtering, search, and pagination
+// @route   GET /api/groups
 // @access  Private
 export const getGroups = async (
   req: Request,
@@ -48,11 +48,119 @@ export const getGroups = async (
   next: NextFunction
 ) => {
   try {
-    const groups = await Group.find();
+    // Copy query object
+    const queryObj: Record<string, any> = { ...req.query };
+
+    // Fields to exclude from filtering
+    const excludedFields = [
+      "page",
+      "sort",
+      "limit",
+      "fields",
+      "search",
+      "createdFrom",
+      "createdTo",
+      "updatedFrom",
+      "updatedTo",
+    ];
+    excludedFields.forEach((field) => delete queryObj[field]);
+
+    // Process date filters
+    // 1. Creation date filtering
+    if (req.query.createdFrom || req.query.createdTo) {
+      queryObj.createdAt = {};
+
+      if (req.query.createdFrom) {
+        queryObj.createdAt.$gte = new Date(req.query.createdFrom as string);
+      }
+
+      if (req.query.createdTo) {
+        queryObj.createdAt.$lte = new Date(req.query.createdTo as string);
+      }
+    }
+
+    // 2. Updated date filtering
+    if (req.query.updatedFrom || req.query.updatedTo) {
+      queryObj.updatedAt = {};
+
+      if (req.query.updatedFrom) {
+        queryObj.updatedAt.$gte = new Date(req.query.updatedFrom as string);
+      }
+
+      if (req.query.updatedTo) {
+        queryObj.updatedAt.$lte = new Date(req.query.updatedTo as string);
+      }
+    }
+
+    // Build search query if provided
+    if (req.query.search) {
+      const searchTerm = req.query.search as string;
+      queryObj["$or"] = [
+        { groupName: { $regex: searchTerm, $options: "i" } },
+        { description: { $regex: searchTerm, $options: "i" } },
+        { groupCode: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+
+    // Build query
+    let query = Group.find(queryObj) as any;
+
+    // Sorting
+    if (req.query.sort) {
+      const sortBy = (req.query.sort as string).split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      // Default sort by createdAt descending
+      query = query.sort("-createdAt");
+    }
+
+    // Field limiting
+    if (req.query.fields) {
+      const fields = (req.query.fields as string).split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      // Exclude '__v' field by default
+      query = query.select("-__v");
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Group.countDocuments(queryObj);
+
+    query = query.skip(startIndex).limit(limit);
+
+    // Execute query
+    const groups = await query.exec();
+
+    // Pagination result
+    const pagination: any = {};
+
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit,
+      };
+    }
 
     res.status(200).json({
       success: true,
       count: groups.length,
+      pagination: {
+        total,
+        page,
+        limit,
+        ...pagination,
+      },
       data: groups,
     });
   } catch (error: any) {
@@ -62,7 +170,7 @@ export const getGroups = async (
 };
 
 // @desc    Get single group with populated members
-// @route   GET /api/v1/groups/:id
+// @route   GET /api/groups/:id
 // @access  Private
 export const getGroupById = async (
   req: Request,
@@ -93,7 +201,7 @@ export const getGroupById = async (
 };
 
 // @desc    Update group
-// @route   PUT /api/v1/groups/:id
+// @route   PUT /api/groups/:id
 // @access  Private
 export const updateGroup = async (
   req: Request,
@@ -125,7 +233,7 @@ export const updateGroup = async (
 };
 
 // @desc    Delete group
-// @route   DELETE /api/v1/groups/:id
+// @route   DELETE /api/groups/:id
 // @access  Private
 export const deleteGroup = async (
   req: Request,
@@ -154,7 +262,7 @@ export const deleteGroup = async (
 };
 
 // @desc    Add member to group
-// @route   POST /api/v1/groups/:id/members
+// @route   POST /api/groups/:id/members
 // @access  Private
 export const addMemberToGroup = async (
   req: Request,
@@ -215,7 +323,7 @@ export const addMemberToGroup = async (
 };
 
 // @desc    Remove member from group
-// @route   DELETE /api/v1/groups/:id/members/:clientId
+// @route   DELETE /api/groups/:id/members/:clientId
 // @access  Private
 export const removeMemberFromGroup = async (
   req: Request,

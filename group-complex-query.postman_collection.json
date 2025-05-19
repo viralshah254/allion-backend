@@ -1,0 +1,63 @@
+{
+  "info": {
+    "_postman_id": "c83d7f5e-4b21-48bc-95a2-ad9e87b9c6f1",
+    "name": "Group Complex Query Example",
+    "description": "Example of a complex query for filtering groups in the insurance management system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Complex Group Query",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/groups?search=premium&sort=-createdAt&page=1&limit=5&fields=groupName,description,members&createdFrom=2023-01-01",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "groups"],
+          "query": [
+            {
+              "key": "search",
+              "value": "premium",
+              "description": "Search term to find in group name, description or code"
+            },
+            {
+              "key": "sort",
+              "value": "-createdAt",
+              "description": "Sort by creation date in descending order (newest first)"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number"
+            },
+            {
+              "key": "limit",
+              "value": "5",
+              "description": "Number of results per page"
+            },
+            {
+              "key": "fields",
+              "value": "groupName,description,members",
+              "description": "Fields to include in the response"
+            },
+            {
+              "key": "createdFrom",
+              "value": "2023-01-01",
+              "description": "Filter for groups created on or after this date"
+            }
+          ]
+        },
+        "description": "Demonstrates combining multiple filter parameters: text search, sorting, pagination, field selection, and date filtering in a single query."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}

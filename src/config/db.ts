@@ -4,7 +4,7 @@ import logger from "../utils/logger";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/insurance";
 
 const connectDB = async () => {
   if (!MONGO_URI) {

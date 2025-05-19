@@ -1,0 +1,322 @@
+{
+  "info": {
+    "_postman_id": "75e39f21-c4a6-48b3-bf42-e8a77f8a0125",
+    "name": "Client Filters Examples",
+    "description": "Examples of using the filtering, search, sorting, and pagination features for clients",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Basic Filters",
+      "item": [
+        {
+          "name": "Get All Clients (Default Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            },
+            "description": "Retrieve all clients with default pagination (10 per page)"
+          }
+        },
+        {
+          "name": "Get Clients by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/type/individual",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", "type", "individual"]
+            },
+            "description": "Retrieve clients of a specific type (individual, corporate, group)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pagination & Sorting",
+      "item": [
+        {
+          "name": "Paginated Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?page=2&limit=15",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "Retrieve page 2 with 15 clients per page"
+          }
+        },
+        {
+          "name": "Sort Clients by Name (Ascending)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?sort=firstName",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "firstName"
+                }
+              ]
+            },
+            "description": "Sort clients by first name in ascending order"
+          }
+        },
+        {
+          "name": "Sort Clients by Creation Date (Descending)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?sort=-createdAt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                }
+              ]
+            },
+            "description": "Sort clients by creation date in descending order (newest first)"
+          }
+        },
+        {
+          "name": "Multiple Sorting Criteria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?sort=clientType,-createdAt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "clientType,-createdAt"
+                }
+              ]
+            },
+            "description": "Sort clients first by client type, then by creation date (newest first)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Field Selection",
+      "item": [
+        {
+          "name": "Select Only Name Fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?fields=firstName,lastName,clientCode",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "firstName,lastName,clientCode"
+                }
+              ]
+            },
+            "description": "Retrieve only the firstName, lastName, and clientCode fields"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?search=john",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "john"
+                }
+              ]
+            },
+            "description": "Search for clients with 'john' in their firstName, lastName, companyName, phoneNumber, email, or clientCode"
+          }
+        },
+        {
+          "name": "Search Individual Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/type/individual?search=john",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", "type", "individual"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "john"
+                }
+              ]
+            },
+            "description": "Search for individual clients with 'john' in their name or other fields"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Date Filtering",
+      "item": [
+        {
+          "name": "Clients Created in Last Year",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?createdFrom=2023-01-01&createdTo=2023-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "createdFrom",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "createdTo",
+                  "value": "2023-12-31"
+                }
+              ]
+            },
+            "description": "Retrieve clients created in 2023"
+          }
+        },
+        {
+          "name": "Recently Updated Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?updatedFrom=2023-11-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "updatedFrom",
+                  "value": "2023-11-01"
+                }
+              ]
+            },
+            "description": "Retrieve clients updated since November 1, 2023"
+          }
+        },
+        {
+          "name": "Clients Born in 1980s",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?clientType=individual&dobFrom=1980-01-01&dobTo=1989-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "clientType",
+                  "value": "individual"
+                },
+                {
+                  "key": "dobFrom",
+                  "value": "1980-01-01"
+                },
+                {
+                  "key": "dobTo",
+                  "value": "1989-12-31"
+                }
+              ]
+            },
+            "description": "Retrieve individual clients born in the 1980s"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Combined Filters",
+      "item": [
+        {
+          "name": "Complex Query Example",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients?clientType=individual&dobFrom=1980-01-01&search=smith&sort=-createdAt&page=1&limit=10&fields=firstName,lastName,phoneNumber,email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "clientType",
+                  "value": "individual"
+                },
+                {
+                  "key": "dobFrom",
+                  "value": "1980-01-01"
+                },
+                {
+                  "key": "search",
+                  "value": "smith"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "fields",
+                  "value": "firstName,lastName,phoneNumber,email"
+                }
+              ]
+            },
+            "description": "Find individual clients born after 1980 with 'smith' in their name, sorted by newest first, limited to 10 results, and returning only selected fields"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}

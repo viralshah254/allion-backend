@@ -19,7 +19,7 @@ const GroupSchema = new mongoose.Schema<IGroup>(
     groupCode: {
       type: String,
       unique: true,
-      required: true,
+      required: false,
     },
     groupName: {
       type: String,
@@ -36,7 +36,7 @@ const GroupSchema = new mongoose.Schema<IGroup>(
         clientType: {
           type: String,
           required: true,
-          enum: ["individual", "corporate"],
+          enum: ["Individual", "Corporate"],
         },
       },
     ],

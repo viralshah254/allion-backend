@@ -1,0 +1,446 @@
+{
+  "info": {
+    "name": "Insurance API - Policy Endpoints",
+    "description": "Postman collection for the Insurance Management System Policy API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Policies",
+      "item": [
+        {
+          "name": "Create Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policyType\": \"Home\",\n  \"client\": \"{{clientId}}\",\n  \"insuredItem\": \"Residential Property\",\n  \"description\": \"Coverage for a single-family home\",\n  \"coverageAmount\": 500000,\n  \"premium\": 1200,\n  \"deductible\": 1000,\n  \"paymentFrequency\": \"Monthly\",\n  \"startDate\": \"2023-06-01\",\n  \"endDate\": \"2024-06-01\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new insurance policy for a client or group"
+          }
+        },
+        {
+          "name": "Create Group Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policyType\": \"Business\",\n  \"group\": \"{{groupId}}\",\n  \"insuredItem\": \"Group Health Insurance\",\n  \"description\": \"Health coverage for all group members\",\n  \"coverageAmount\": 1000000,\n  \"premium\": 5000,\n  \"deductible\": 500,\n  \"paymentFrequency\": \"Monthly\",\n  \"startDate\": \"2023-06-01\",\n  \"endDate\": \"2024-06-01\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new insurance policy for a group"
+          }
+        },
+        {
+          "name": "Get All Policies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of records per page"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt",
+                  "description": "Field to sort by (prefix with - for descending order)"
+                },
+                {
+                  "key": "policyType",
+                  "value": "Home",
+                  "description": "Filter by policy type",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by policy status",
+                  "disabled": true
+                },
+                {
+                  "key": "startDateFrom",
+                  "value": "2023-01-01",
+                  "description": "Filter policies with start date from",
+                  "disabled": true
+                },
+                {
+                  "key": "startDateTo",
+                  "value": "2023-12-31",
+                  "description": "Filter policies with start date to",
+                  "disabled": true
+                },
+                {
+                  "key": "endDateFrom",
+                  "value": "2024-01-01",
+                  "description": "Filter policies with end date from",
+                  "disabled": true
+                },
+                {
+                  "key": "endDateTo",
+                  "value": "2024-12-31",
+                  "description": "Filter policies with end date to",
+                  "disabled": true
+                },
+                {
+                  "key": "fields",
+                  "value": "policyNumber,policyType,client,status",
+                  "description": "Comma-separated list of fields to return",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all policies with optional filtering, sorting, and pagination"
+          }
+        },
+        {
+          "name": "Get Policy By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies/{{policyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies", "{{policyId}}"]
+            },
+            "description": "Get a single policy by its ID"
+          }
+        },
+        {
+          "name": "Update Policy",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies/{{policyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies", "{{policyId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coverageAmount\": 600000,\n  \"premium\": 1350,\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Update an existing policy (partial update supported)"
+          }
+        },
+        {
+          "name": "Delete Policy",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies/{{policyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies", "{{policyId}}"]
+            },
+            "description": "Delete a policy by its ID"
+          }
+        },
+        {
+          "name": "Renew Policy",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/policies/{{policyId}}/renew",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policies", "{{policyId}}", "renew"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newStartDate\": \"2024-06-02\",\n  \"newEndDate\": \"2025-06-01\",\n  \"newPremium\": 1250\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Renew a policy with optional new start/end dates and premium"
+          }
+        },
+        {
+          "name": "Get Policies By Client",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/{{clientId}}/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", "{{clientId}}", "policies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "disabled": true
+                },
+                {
+                  "key": "policyType",
+                  "value": "Home",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all policies for a specific client"
+          }
+        },
+        {
+          "name": "Get Policies By Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/{{groupId}}/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groups", "{{groupId}}", "policies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "disabled": true
+                },
+                {
+                  "key": "policyType",
+                  "value": "Business",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all policies for a specific group"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clients with Policy Filters",
+      "item": [
+        {
+          "name": "Get Clients Filtered by Policy Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "policyType",
+                  "value": "Home",
+                  "description": "Filter clients with this policy type"
+                }
+              ]
+            },
+            "description": "Get all clients who have a specific policy type"
+          }
+        },
+        {
+          "name": "Get Clients By Type with Policy Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/type/Individual",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", "type", "Individual"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "policyType",
+                  "value": "Life",
+                  "description": "Filter Individual clients with Life insurance policies"
+                }
+              ]
+            },
+            "description": "Get clients of a specific type who have a particular policy type"
+          }
+        },
+        {
+          "name": "Get Clients with KYC Status Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "kycStatus",
+                  "value": "Complete",
+                  "description": "Filter by KYC status (Complete, Incomplete, Pending, Rejected)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name,-accountStatus",
+                  "description": "Sort by name (ascending) and account status (descending)"
+                }
+              ]
+            },
+            "description": "Get clients with filtering by KYC status and advanced sorting"
+          }
+        },
+        {
+          "name": "Get Clients Sorted by Group Membership",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "group",
+                  "description": "Sort by group name (ascending)"
+                }
+              ]
+            },
+            "description": "Get clients sorted by their group membership"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "clientId",
+      "value": "60d21b4667d0d8992e610c85",
+      "type": "string"
+    },
+    {
+      "key": "groupId",
+      "value": "60d21b4667d0d8992e610c86",
+      "type": "string"
+    },
+    {
+      "key": "policyId",
+      "value": "60d21b4667d0d8992e610c87",
+      "type": "string"
+    }
+  ]
+}

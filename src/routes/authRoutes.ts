@@ -1,11 +1,12 @@
 import express from "express";
 import {
-  registerUser,
+  registerAdminUser,
   login,
   getMe,
   forgotPassword,
   resetPassword,
   updateProfile,
+  registerAdmin,
 } from "../controllers/authController";
 import { protect, authorize } from "../middleware/auth";
 import { UserRole } from "../models/User";
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post("/login", login);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resettoken", resetPassword);
+router.post("/registeradmin", registerAdmin);
 
 // Protected routes
 router.use(protect);
@@ -24,6 +26,6 @@ router.put("/updateprofile", updateProfile);
 
 // Admin only routes
 router.use(authorize(UserRole.ADMIN));
-router.post("/register", registerUser);
+router.post("/register", registerAdminUser);
 
 export default router;

@@ -7,6 +7,58 @@
   },
   "item": [
     {
+      "name": "Auth",
+      "description": "User authentication and management",
+      "item": [
+        {
+          "name": "Register Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"phoneNumber\": \"+12345678900\",\n  \"password\": \"password123\",\n  \"email\": \"admin@example.com\",\n  \"adminKey\": \"admin-secret-key-2023\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registeradmin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registeradmin"]
+            },
+            "description": "Register a new admin user with the admin key"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+12345678900\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login to get authentication token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Clients",
       "description": "Operations related to client management",
       "item": [

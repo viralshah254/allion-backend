@@ -5,10 +5,11 @@ import jwt from "jsonwebtoken";
 
 // Define role types
 export enum UserRole {
-  ADMIN = "admin",
-  MANAGER = "manager",
-  AGENT = "agent",
-  SUPPORT = "support",
+  ADMIN = "Admin",
+  MANAGER = "Manager",
+  AGENT = "Agent",
+  OWNER = "Owner",
+  SUPPORT = "Support",
 }
 
 // User Interface

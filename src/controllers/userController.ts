@@ -3,7 +3,7 @@ import User, { UserRole } from "../models/User";
 import logger from "../utils/logger";
 
 // @desc    Get all users
-// @route   GET /api/v1/users
+// @route   GET /api/users
 // @access  Private/Admin
 export const getUsers = async (
   req: Request,
@@ -27,7 +27,7 @@ export const getUsers = async (
 };
 
 // @desc    Get single user
-// @route   GET /api/v1/users/:id
+// @route   GET /api/users/:id
 // @access  Private/Admin
 export const getUser = async (
   req: Request,
@@ -58,7 +58,7 @@ export const getUser = async (
 };
 
 // @desc    Update user
-// @route   PUT /api/v1/users/:id
+// @route   PUT /api/users/:id
 // @access  Private/Admin
 export const updateUser = async (
   req: Request,
@@ -105,7 +105,7 @@ export const updateUser = async (
 };
 
 // @desc    Delete user
-// @route   DELETE /api/v1/users/:id
+// @route   DELETE /api/users/:id
 // @access  Private/Admin
 export const deleteUser = async (
   req: Request,

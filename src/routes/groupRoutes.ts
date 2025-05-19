@@ -8,17 +8,21 @@ import {
   addMemberToGroup,
   removeMemberFromGroup,
 } from "../controllers/groupController";
+import { getPoliciesByGroup } from "../controllers/policyController";
 
 const router = express.Router();
 
-// Group routes
-router.route("/").post(createGroup).get(getGroups);
+// Main group routes
+router.route("/").get(getGroups).post(createGroup);
 
 router.route("/:id").get(getGroupById).put(updateGroup).delete(deleteGroup);
 
-// Group membership management
+// Group member management
 router.route("/:id/members").post(addMemberToGroup);
 
 router.route("/:id/members/:clientId").delete(removeMemberFromGroup);
+
+// Get policies by group
+router.route("/:groupId/policies").get(getPoliciesByGroup);
 
 export default router;

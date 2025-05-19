@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db";
 import logger from "./utils/logger";
-import applicationRoutes from "./routes/applicationRoutes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import clientRoutes from "./routes/clientRoutes";
 import groupRoutes from "./routes/groupRoutes";
+import policyRoutes from "./routes/policyRoutes";
 
 dotenv.config();
 
@@ -30,9 +30,15 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/applications", applicationRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/policies", policyRoutes);
+
+//log endpoints used
+app.use((req: Request, res: Response, next: NextFunction) => {
+  logger.info(`${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Global Error Handler Middleware
 interface HttpError extends Error {

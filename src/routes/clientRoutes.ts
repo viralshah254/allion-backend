@@ -8,17 +8,22 @@ import {
   getClientsByType,
   uploadKycDocuments,
 } from "../controllers/clientController";
+import { getPoliciesByClient } from "../controllers/policyController";
 
 const router = express.Router();
 
-// Client routes
-router.route("/").post(createClient).get(getClients);
+// Main client routes
+router.route("/").get(getClients).post(createClient);
 
 router.route("/:id").get(getClientById).put(updateClient).delete(deleteClient);
 
+// Get clients by type
 router.route("/type/:type").get(getClientsByType);
 
-// KYC document upload route
+// Upload KYC documents
 router.route("/:id/kyc").post(uploadKycDocuments);
+
+// Get policies by client
+router.route("/:clientId/policies").get(getPoliciesByClient);
 
 export default router;
