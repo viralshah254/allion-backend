@@ -14,7 +14,7 @@ const router = express.Router();
 // router.use(protect);
 
 // Restrict to admin and manager
-router.use(authorize(UserRole.ADMIN, UserRole.MANAGER));
+// router.use(authorize(UserRole.ADMIN, UserRole.MANAGER));
 
 router.route("/").get(getUsers);
 
