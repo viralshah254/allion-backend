@@ -172,8 +172,19 @@ export const getInsuranceCompanies = async (
     const insuranceCompanies = await query;
 
     // Pagination result
-    const pagination: any = {};
+    const pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      next?: { page: number; limit: number };
+      prev?: { page: number; limit: number };
+    } = {
+      total,
+      page,
+      limit,
+    };
 
+    // Add next and prev page info if applicable
     if (endIndex < total) {
       pagination.next = {
         page: page + 1,
@@ -192,7 +203,6 @@ export const getInsuranceCompanies = async (
       success: true,
       count: insuranceCompanies.length,
       pagination,
-      total,
       data: insuranceCompanies,
     });
   } catch (error: any) {

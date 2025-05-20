@@ -9,24 +9,24 @@ export enum KycStatus {
 }
 
 // Department Enum
-export enum Department {
-  SALES = "Sales",
-  FINANCE = "Finance",
-  OPERATIONS = "Operations",
-  MARKETING = "Marketing",
-  HUMAN_RESOURCES = "Human Resources",
-  CUSTOMER_SERVICE = "Customer Service",
-  LEGAL = "Legal",
-  IT = "IT",
-  OTHER = "Other",
-}
+// export enum Department {
+//   SALES = "Sales",
+//   FINANCE = "Finance",
+//   OPERATIONS = "Operations",
+//   MARKETING = "Marketing",
+//   HUMAN_RESOURCES = "Human Resources",
+//   CUSTOMER_SERVICE = "Customer Service",
+//   LEGAL = "Legal",
+//   IT = "IT",
+//   OTHER = "Other",
+// }
 
 // Contact Person Interface
 interface IContactPerson {
   name: string;
   phoneNumber: string;
   email: string;
-  department?: Department;
+  department?:string;
   isMainContact?: boolean;
 }
 
@@ -79,8 +79,8 @@ const ContactPersonSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    enum: Object.values(Department),
-    default: Department.OTHER,
+    // enum: Object.values(Department),
+    // default: Department.OTHER,
   },
   isMainContact: {
     type: Boolean,
