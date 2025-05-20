@@ -13,7 +13,7 @@ import { UserRole } from "../models/User";
 const router = express.Router();
 
 // Apply protect middleware to all routes
-router.use(protect);
+// router.use(protect);
 
 // Main insurance company routes
 router

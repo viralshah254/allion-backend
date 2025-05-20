@@ -15,7 +15,7 @@ import { UserRole } from "../models/User";
 const router = express.Router();
 
 // Protect all routes
-router.use(protect);
+// router.use(protect);
 
 // Main group routes
 router

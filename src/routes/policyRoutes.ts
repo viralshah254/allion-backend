@@ -13,7 +13,7 @@ import { UserRole } from "../models/User";
 const router = express.Router();
 
 // Protect all routes
-router.use(protect);
+// router.use(protect);
 
 // Main policy routes
 router

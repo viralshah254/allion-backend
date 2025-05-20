@@ -25,7 +25,7 @@ router.get("/me", getMe);
 router.put("/updateprofile", updateProfile);
 
 // Admin only routes
-router.use(authorize(UserRole.ADMIN));
+// router.use(authorize(UserRole.ADMIN));
 router.post("/register", registerAdminUser);
 
 export default router;

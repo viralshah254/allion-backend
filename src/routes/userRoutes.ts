@@ -11,7 +11,7 @@ import { UserRole } from "../models/User";
 const router = express.Router();
 
 // Protect all routes
-router.use(protect);
+// router.use(protect);
 
 // Restrict to admin and manager
 router.use(authorize(UserRole.ADMIN, UserRole.MANAGER));
