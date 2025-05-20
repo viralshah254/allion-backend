@@ -1,0 +1,241 @@
+{
+  "info": {
+    "_postman_id": "f9a1e2b3-c4d5-6e7f-8a9b-0c1d2e3f4a5b",
+    "name": "Insurance Companies API",
+    "description": "API endpoints for managing insurance companies",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Insurance Companies",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies?search=insurance&kycStatus=Pending&page=1&limit=10&sort=-createdAt,companyName&fields=companyName,code,email,phoneNumber,kycStatus&createdFrom=2023-01-01&createdTo=2023-12-31&updatedFrom=2023-06-01&updatedTo=2023-12-31",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies"],
+          "query": [
+            {
+              "key": "search",
+              "value": "insurance",
+              "description": "Search term for text fields (company name, code, phone, email, contact person name, branch name)"
+            },
+            {
+              "key": "kycStatus",
+              "value": "Pending",
+              "description": "Filter by KYC status (Complete, Incomplete, Pending, Rejected)"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of results per page"
+            },
+            {
+              "key": "sort",
+              "value": "-createdAt,companyName",
+              "description": "Sort by fields (prefix with - for descending order)"
+            },
+            {
+              "key": "fields",
+              "value": "companyName,code,email,phoneNumber,kycStatus",
+              "description": "Fields to include in response"
+            },
+            {
+              "key": "createdFrom",
+              "value": "2023-01-01",
+              "description": "Filter records created on or after this date"
+            },
+            {
+              "key": "createdTo",
+              "value": "2023-12-31",
+              "description": "Filter records created on or before this date"
+            },
+            {
+              "key": "updatedFrom",
+              "value": "2023-06-01",
+              "description": "Filter records updated on or after this date"
+            },
+            {
+              "key": "updatedTo",
+              "value": "2023-12-31",
+              "description": "Filter records updated on or before this date"
+            }
+          ]
+        },
+        "description": "Retrieve all insurance companies with comprehensive filtering, searching, pagination, sorting, and field selection options.\n\nAvailable filters:\n- search: Text search across multiple fields\n- kycStatus: Filter by KYC document status\n- createdFrom/createdTo: Filter by creation date range\n- updatedFrom/updatedTo: Filter by update date range\n- page/limit: Pagination controls\n- sort: Sort by any field(s) with ascending/descending options\n- fields: Select specific fields to include in response"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Insurance Company by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{insurance_company_id}}",
+              "description": "ID of the insurance company to retrieve"
+            }
+          ]
+        },
+        "description": "Retrieve a specific insurance company by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Insurance Company",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"companyName\": \"Acme Insurance Ltd\",\n  \"postalAddress\": \"P.O. Box 12345\",\n  \"physicalAddress\": \"123 Insurance Blvd, Business District\",\n  \"coordinates\": \"-1.2345,36.7890\",\n  \"phoneNumber\": \"+254712345678\",\n  \"email\": \"info@acmeinsurance.com\",\n  \"contactPersons\": [\n    {\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+254712345678\",\n      \"email\": \"john.doe@acmeinsurance.com\",\n      \"department\": \"Sales\",\n      \"isMainContact\": true\n    },\n    {\n      \"name\": \"Jane Smith\",\n      \"phoneNumber\": \"+254723456789\",\n      \"email\": \"jane.smith@acmeinsurance.com\",\n      \"department\": \"Operations\"\n    }\n  ],\n  \"branches\": [\n    {\n      \"name\": \"Main Branch\",\n      \"address\": \"123 Insurance Blvd, Business District\"\n    },\n    {\n      \"name\": \"Downtown Branch\",\n      \"address\": \"456 Central Ave, Downtown\"\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies"]
+        },
+        "description": "Create a new insurance company"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Insurance Company",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"companyName\": \"Acme Insurance Group Ltd\",\n  \"postalAddress\": \"P.O. Box 54321\",\n  \"physicalAddress\": \"123 Insurance Blvd, Business District\",\n  \"phoneNumber\": \"+254712345678\",\n  \"email\": \"contact@acmeinsurance.com\",\n  \"contactPersons\": [\n    {\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+254712345678\",\n      \"email\": \"john.doe@acmeinsurance.com\",\n      \"department\": \"Sales\",\n      \"isMainContact\": true\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{insurance_company_id}}",
+              "description": "ID of the insurance company to update"
+            }
+          ]
+        },
+        "description": "Update an existing insurance company"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Insurance Company",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{insurance_company_id}}",
+              "description": "ID of the insurance company to delete"
+            }
+          ]
+        },
+        "description": "Delete an insurance company"
+      },
+      "response": []
+    },
+    {
+      "name": "Upload KYC Documents",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "license",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "registration",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "taxClearance",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/insurance-companies/:id/kyc",
+          "host": ["{{base_url}}"],
+          "path": ["api", "insurance-companies", ":id", "kyc"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{insurance_company_id}}",
+              "description": "ID of the insurance company to upload KYC documents for"
+            }
+          ]
+        },
+        "description": "Upload KYC documents for an insurance company"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "insurance_company_id",
+      "value": "",
+      "type": "string",
+      "description": "Store the ID of an insurance company here after creating one"
+    }
+  ]
+}
