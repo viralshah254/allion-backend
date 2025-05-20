@@ -20,7 +20,7 @@ router.put("/resetpassword/:resettoken", resetPassword);
 router.post("/registeradmin", registerAdmin);
 
 // Protected routes
-router.use(protect);
+
 router.get("/me", getMe);
 router.put("/updateprofile", updateProfile);
 
