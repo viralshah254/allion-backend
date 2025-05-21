@@ -21,22 +21,22 @@ const router = express.Router();
 router
   .route("/")
   .get(getGroups)
-  .post(authorize(UserRole.ADMIN, UserRole.MANAGER), createGroup);
+  .post( createGroup);
 
 router
   .route("/:id")
   .get(getGroupById)
-  .put(authorize(UserRole.ADMIN, UserRole.MANAGER), updateGroup)
-  .delete(authorize(UserRole.ADMIN), deleteGroup);
+  .put( updateGroup)
+  .delete( deleteGroup);
 
 // Group member management
 router
   .route("/:id/members")
-  .post(authorize(UserRole.ADMIN, UserRole.MANAGER), addMemberToGroup);
+  .post( addMemberToGroup);
 
 router
   .route("/:id/members/:clientId")
-  .delete(authorize(UserRole.ADMIN, UserRole.MANAGER), removeMemberFromGroup);
+  .delete( removeMemberFromGroup);
 
 // Get policies by group
 router.route("/:groupId/policies").get(getPoliciesByGroup);

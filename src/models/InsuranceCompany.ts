@@ -74,7 +74,6 @@ const ContactPersonSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, "Please provide contact person email"],
     match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please add a valid email"],
   },
   department: {
@@ -92,12 +91,11 @@ const ContactPersonSchema = new mongoose.Schema({
 const BranchSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Please provide branch name"],
     trim: true,
   },
   address: {
     type: String,
-    required: [true, "Please provide branch address"],
+ 
     trim: true,
   },
 });

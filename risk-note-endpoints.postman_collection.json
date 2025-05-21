@@ -1,0 +1,264 @@
+{
+  "info": {
+    "_postman_id": "e2afc8db-1d86-47e2-9cb7-a84f6e2d8a22",
+    "name": "Risk Note Endpoints",
+    "description": "Collection of endpoints for Risk Note management in the Insurance API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Risk Notes (with search, filter, sort, pagination)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes?search=Toyota&policyCategory=Motor&subCategory=Private&minPremium=10000&maxPremium=50000&minSumInsured=500000&maxSumInsured=2000000&createdFrom=2023-01-01&createdTo=2023-12-31&sort=-premiumBreakdown.totalPremium&page=1&limit=10&fields=policyCategory,subCategory,motorDetails,premiumBreakdown.totalPremium",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes"],
+          "query": [
+            {
+              "key": "search",
+              "value": "Toyota",
+              "description": "Search across multiple fields (registration number, make, model, etc.)"
+            },
+            {
+              "key": "policyCategory",
+              "value": "Motor",
+              "description": "Filter by policy category"
+            },
+            {
+              "key": "subCategory",
+              "value": "Private",
+              "description": "Filter by subcategory"
+            },
+            {
+              "key": "minPremium",
+              "value": "10000",
+              "description": "Minimum premium amount"
+            },
+            {
+              "key": "maxPremium",
+              "value": "50000",
+              "description": "Maximum premium amount"
+            },
+            {
+              "key": "minSumInsured",
+              "value": "500000",
+              "description": "Minimum sum insured amount"
+            },
+            {
+              "key": "maxSumInsured",
+              "value": "2000000",
+              "description": "Maximum sum insured amount"
+            },
+            {
+              "key": "createdFrom",
+              "value": "2023-01-01",
+              "description": "Creation date from (YYYY-MM-DD)"
+            },
+            {
+              "key": "createdTo",
+              "value": "2023-12-31",
+              "description": "Creation date to (YYYY-MM-DD)"
+            },
+            {
+              "key": "sort",
+              "value": "-premiumBreakdown.totalPremium",
+              "description": "Sort field (prefix with - for descending order)"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            },
+            {
+              "key": "fields",
+              "value": "policyCategory,subCategory,motorDetails,premiumBreakdown.totalPremium",
+              "description": "Comma-separated fields to include in response"
+            }
+          ]
+        },
+        "description": "Get risk notes with all available query options:\n\n- **search**: Text search across multiple fields\n- **policyCategory/subCategory**: Filter by policy category/subcategory\n- **minPremium/maxPremium**: Filter by premium range\n- **minSumInsured/maxSumInsured**: Filter by sum insured range\n- **createdFrom/createdTo**: Filter by creation date range\n- **sort**: Sort results (prefix with - for descending)\n- **page/limit**: Pagination controls\n- **fields**: Select specific fields to return\n\nAll parameters are optional. Use only what you need for your specific query."
+      },
+      "response": []
+    },
+    {
+      "name": "Create Risk Note",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"client\": \"{{client_id}}\",\n    \"insuranceCompany\": \"{{insurance_company_id}}\",\n    \"policyCategory\": \"Motor\",\n    \"subCategory\": \"Private\",\n    \"motorDetails\": {\n        \"registrationNumber\": \"KAA 123D\",\n        \"make\": \"Toyota\",\n        \"model\": \"Corolla\",\n        \"year\": \"2022\"\n    },\n    \"premiumBreakdown\": {\n        \"policyCategory\": \"Motor\",\n        \"selectedPolicy\": \"Private\",\n        \"sumInsured\": 1000000,\n        \"rate\": 3.0,\n        \"basePremium\": 30000,\n        \"terrorism\": true,\n        \"terrorismRate\": 0.25,\n        \"terrorismPremium\": 2500,\n        \"excessProtector\": true,\n        \"excessProtectorRate\": 0.25,\n        \"excessProtectorPremium\": 2500,\n        \"coverExtras\": {\n            \"recovery\": 50000,\n            \"windscreen\": 60000,\n            \"entertainment\": 50000,\n            \"repair\": 50000,\n            \"thirdPartyProperty\": 20000000,\n            \"thirdPartyPassenger\": 5000000,\n            \"thirdPartyOthers\": 5000000\n        },\n        \"coverExtraRates\": {\n            \"recovery\": 10,\n            \"windscreen\": 10,\n            \"entertainment\": 10,\n            \"repair\": 10,\n            \"thirdPartyProperty\": 0.05,\n            \"thirdPartyPassenger\": 0.05,\n            \"thirdPartyOthers\": 0.05\n        },\n        \"coverExtraPremium\": 1000,\n        \"optionalExtLimits\": {\n            \"noBlameNoExcess\": 1000000,\n            \"windscreenMirror\": 100000,\n            \"emergencyMedicalSectionIII\": 100000,\n            \"excessTheft\": 1000000,\n            \"returnToInvoice\": 1000000,\n            \"driveThrough\": 1000000,\n            \"carHire\": 30000,\n            \"personalEffects\": 30000,\n            \"forcedATM\": 30000,\n            \"personalAccident\": 500000\n        },\n        \"optionalExtRates\": {\n            \"noBlameNoExcess\": 0.25,\n            \"windscreenMirror\": 0.25,\n            \"emergencyMedicalSectionIII\": 0,\n            \"excessTheft\": 0.25,\n            \"returnToInvoice\": 0.25,\n            \"driveThrough\": 0.25,\n            \"carHire\": 0.1,\n            \"personalEffects\": 10,\n            \"forcedATM\": 10,\n            \"personalAccident\": 10\n        },\n        \"includeOptionalExt\": {\n            \"noBlameNoExcess\": true,\n            \"windscreenMirror\": true,\n            \"emergencyMedicalSectionIII\": true,\n            \"excessTheft\": true,\n            \"returnToInvoice\": true,\n            \"driveThrough\": true,\n            \"carHire\": true,\n            \"personalEffects\": false,\n            \"forcedATM\": false,\n            \"personalAccident\": true\n        },\n        \"optionalExtPremium\": 5600,\n        \"trainingLevy\": 80,\n        \"pcfLevy\": 100,\n        \"stampDuty\": 40,\n        \"totalPremium\": 41720\n    },\n    \"riskNoteDocUrl\": \"https://example.com/documents/risk-note-123.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes"]
+        },
+        "description": "Create a new risk note"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Risk Note by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes/{{risk_note_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes", "{{risk_note_id}}"]
+        },
+        "description": "Get a specific risk note by its ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Risk Note",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"policyCategory\": \"Motor\",\n    \"subCategory\": \"Private\",\n    \"motorDetails\": {\n        \"registrationNumber\": \"KAA 123D\",\n        \"make\": \"Toyota\",\n        \"model\": \"Corolla\",\n        \"year\": \"2022\"\n    },\n    \"premiumBreakdown\": {\n        \"policyCategory\": \"Motor\",\n        \"selectedPolicy\": \"Private\",\n        \"sumInsured\": 1200000,\n        \"rate\": 3.0,\n        \"basePremium\": 36000,\n        \"terrorism\": true,\n        \"terrorismRate\": 0.25,\n        \"terrorismPremium\": 3000,\n        \"excessProtector\": true,\n        \"excessProtectorRate\": 0.25,\n        \"excessProtectorPremium\": 3000,\n        \"coverExtras\": {\n            \"recovery\": 50000,\n            \"windscreen\": 60000,\n            \"entertainment\": 50000,\n            \"repair\": 50000,\n            \"thirdPartyProperty\": 20000000,\n            \"thirdPartyPassenger\": 5000000,\n            \"thirdPartyOthers\": 5000000\n        },\n        \"coverExtraRates\": {\n            \"recovery\": 10,\n            \"windscreen\": 10,\n            \"entertainment\": 10,\n            \"repair\": 10,\n            \"thirdPartyProperty\": 0.05,\n            \"thirdPartyPassenger\": 0.05,\n            \"thirdPartyOthers\": 0.05\n        },\n        \"coverExtraPremium\": 1200,\n        \"optionalExtLimits\": {\n            \"noBlameNoExcess\": 1000000,\n            \"windscreenMirror\": 100000,\n            \"emergencyMedicalSectionIII\": 100000,\n            \"excessTheft\": 1000000,\n            \"returnToInvoice\": 1000000,\n            \"driveThrough\": 1000000,\n            \"carHire\": 30000,\n            \"personalEffects\": 30000,\n            \"forcedATM\": 30000,\n            \"personalAccident\": 500000\n        },\n        \"optionalExtRates\": {\n            \"noBlameNoExcess\": 0.25,\n            \"windscreenMirror\": 0.25,\n            \"emergencyMedicalSectionIII\": 0,\n            \"excessTheft\": 0.25,\n            \"returnToInvoice\": 0.25,\n            \"driveThrough\": 0.25,\n            \"carHire\": 0.1,\n            \"personalEffects\": 10,\n            \"forcedATM\": 10,\n            \"personalAccident\": 10\n        },\n        \"includeOptionalExt\": {\n            \"noBlameNoExcess\": true,\n            \"windscreenMirror\": true,\n            \"emergencyMedicalSectionIII\": true,\n            \"excessTheft\": true,\n            \"returnToInvoice\": true,\n            \"driveThrough\": true,\n            \"carHire\": true,\n            \"personalEffects\": false,\n            \"forcedATM\": false,\n            \"personalAccident\": true\n        },\n        \"optionalExtPremium\": 6000,\n        \"trainingLevy\": 90,\n        \"pcfLevy\": 120,\n        \"stampDuty\": 50,\n        \"totalPremium\": 49460\n    },\n    \"riskNoteDocUrl\": \"https://example.com/documents/risk-note-123-updated.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes/{{risk_note_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes", "{{risk_note_id}}"]
+        },
+        "description": "Update an existing risk note"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Risk Note",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes/{{risk_note_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes", "{{risk_note_id}}"]
+        },
+        "description": "Delete a risk note"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Risk Notes by Client ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes/client/{{client_id}}?page=1&limit=10&sort=-createdAt",
+          "host": ["{{base_url}}"],
+          "path": ["api", "risk-notes", "client", "{{client_id}}"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "-createdAt"
+            }
+          ]
+        },
+        "description": "Get all risk notes associated with a specific client. Also supports pagination and sorting."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Risk Notes by Insurance Company ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/risk-notes/insurance-company/{{insurance_company_id}}?page=1&limit=10&sort=-createdAt",
+          "host": ["{{base_url}}"],
+          "path": [
+            "api",
+            "risk-notes",
+            "insurance-company",
+            "{{insurance_company_id}}"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "-createdAt"
+            }
+          ]
+        },
+        "description": "Get all risk notes associated with a specific insurance company. Also supports pagination and sorting."
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "client_id",
+      "value": "your_client_id_here",
+      "type": "string"
+    },
+    {
+      "key": "insurance_company_id",
+      "value": "your_insurance_company_id_here",
+      "type": "string"
+    },
+    {
+      "key": "risk_note_id",
+      "value": "your_risk_note_id_here",
+      "type": "string"
+    }
+  ]
+}

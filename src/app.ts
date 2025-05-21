@@ -9,6 +9,7 @@ import clientRoutes from "./routes/clientRoutes";
 import groupRoutes from "./routes/groupRoutes";
 import policyRoutes from "./routes/policyRoutes";
 import insuranceCompanyRoutes from "./routes/insuranceCompanyRoutes";
+import riskNoteRoutes from "./routes/riskNoteRoutes";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/insurance-companies", insuranceCompanyRoutes);
+app.use("/api/risk-notes", riskNoteRoutes);
 
 //log endpoints used
 app.use((req: Request, res: Response, next: NextFunction) => {
