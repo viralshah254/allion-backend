@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import Client, { IClient, ClientType, Department } from "../models/Client";
 import logger from "../utils/logger";
 import Group from "../models/Group";
-import Policy from "../models/Policy";
 import mongoose from "mongoose";
+
+import RiskNote from "../models/RiskNote";
 
 // Extend the Express Request interface to include files for multer
 interface MulterRequest extends Request {
@@ -164,9 +165,9 @@ export const getClients = async (
     if (req.query.policyType) {
       const policyType = req.query.policyType as string;
       // Find all policies of the specified type and get their client IDs
-      const policiesWithType = await Policy.find({ policyType }).distinct(
-        "client"
-      );
+      const policiesWithType = await RiskNote.find({
+        policyCategory: policyType,
+      }).distinct("client");
 
       // Only include clients that have the specified policy type
       if (policiesWithType.length > 0) {
@@ -277,9 +278,9 @@ export const getClients = async (
         }).select("_id groupName groupCode");
 
         // Find policies where this client is insured
-        const policies = await Policy.find({
+        const policies = await RiskNote.find({
           client: client._id,
-        }).select("_id policyNumber policyType status");
+        }).select("_id policyNumber policyCategory subCategory");
 
         // Convert client to a plain object so we can add properties
         const clientObj = client.toObject();
@@ -295,8 +296,9 @@ export const getClients = async (
         clientObj.policies = policies.map((policy: any) => ({
           policyId: policy._id,
           policyNumber: policy.policyNumber,
-          policyType: policy.policyType,
-          status: policy.status,
+          policyType: policy.policyCategory,
+          subCategory: policy.subCategory,
+          status: "Active",
         }));
 
         return clientObj;
@@ -410,9 +412,9 @@ export const getClientById = async (
     }).select("_id groupName groupCode");
 
     // Find policies where this client is insured
-    const policies = await Policy.find({
+    const policies = await RiskNote.find({
       client: client._id,
-    }).select("_id policyNumber policyType status");
+    }).select("_id policyNumber policyCategory subCategory");
 
     // Convert client to a plain object so we can add properties
     const clientObj = client.toObject();
@@ -428,8 +430,9 @@ export const getClientById = async (
     clientObj.policies = policies.map((policy: any) => ({
       policyId: policy._id,
       policyNumber: policy.policyNumber,
-      policyType: policy.policyType,
-      status: policy.status,
+      policyType: policy.policyCategory,
+      subCategory: policy.subCategory,
+      status: "Active",
     }));
 
     res.status(200).json({
@@ -580,8 +583,8 @@ export const getClientsByType = async (
     if (req.query.policyType) {
       const policyType = req.query.policyType as string;
       // Find all policies of the specified type and get their client IDs
-      const policiesWithType = await Policy.find({
-        policyType,
+      const policiesWithType = await RiskNote.find({
+        policyCategory: policyType,
         client: { $exists: true, $ne: null },
       }).distinct("client");
 
@@ -697,9 +700,9 @@ export const getClientsByType = async (
         }).select("_id groupName groupCode");
 
         // Find policies where this client is insured
-        const policies = await Policy.find({
+        const policies = await RiskNote.find({
           client: client._id,
-        }).select("_id policyNumber policyType status");
+        }).select("_id policyNumber policyCategory subCategory");
 
         // Convert client to a plain object so we can add properties
         const clientObj = client.toObject();
@@ -715,8 +718,9 @@ export const getClientsByType = async (
         clientObj.policies = policies.map((policy: any) => ({
           policyId: policy._id,
           policyNumber: policy.policyNumber,
-          policyType: policy.policyType,
-          status: policy.status,
+          policyType: policy.policyCategory,
+          subCategory: policy.subCategory,
+          status: "Active",
         }));
 
         return clientObj;

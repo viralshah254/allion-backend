@@ -8,7 +8,6 @@ import {
   getClientsByType,
   uploadKycDocuments,
 } from "../controllers/clientController";
-import { getPoliciesByClient } from "../controllers/policyController";
 import { protect, authorize } from "../middleware/auth";
 import { UserRole } from "../models/User";
 
@@ -29,6 +28,6 @@ router.route("/type/:type").get(getClientsByType);
 router.route("/:id/kyc").post(uploadKycDocuments);
 
 // Get policies by client
-router.route("/:clientId/policies").get(getPoliciesByClient);
+// router.route("/:clientId/policies").get(getPoliciesByClient);
 
 export default router;

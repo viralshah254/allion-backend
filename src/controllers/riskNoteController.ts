@@ -142,6 +142,9 @@ export const getRiskNotes = async (
       // Add $or operator for searching across multiple fields
       const searchQuery = {
         $or: [
+        
+          { policyNumber: searchRegex },
+        
           { "motorDetails.registrationNumber": searchRegex },
           { "motorDetails.make": searchRegex },
           { "motorDetails.model": searchRegex },
@@ -252,8 +255,8 @@ export const getRiskNoteById = async (
 ): Promise<void> => {
   try {
     const riskNote = await RiskNote.findById(req.params.id)
-      .populate("client", "firstName lastName email phone")
-      .populate("insuranceCompany", "companyName email phone");
+      .populate("client", "firstName lastName email postalAddress physicalAddress coordinates companyName phoneNumber occupation")
+      .populate("insuranceCompany", "companyName email phoneNumber postalAddress physicalAddress coordinates ");
 
     if (!riskNote) {
       res.status(404).json({
